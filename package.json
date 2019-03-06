@@ -9,7 +9,8 @@
     "setup": "npm ci",
     "lint": "tslint --project .",
     "lintfix": "tslint --project . --fix",
-    "incDevVersion": "npm version prerelease"
+    "incDevVersion": "npm version prerelease",
+    "debug": "NODE_ENV=debug node ./dist/test.js"
   },
   "main": "./dist/datalib.js",
   "repository": {
