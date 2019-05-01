@@ -65,6 +65,9 @@ export class Datalib {
     });
     return ee;
   }
+  public dump(key) {
+    this.send("DUMP", key);
+  }
   public end() {
     this.socket.end();
   }
@@ -76,8 +79,8 @@ export class Datalib {
       return;
     }
     // Check if reqId is okay
-    const type = parseInt(m[0], 10);
-    if (isNaN(type)) {
+    const id = parseInt(m[0], 10);
+    if (isNaN(id)) {
       return;
     }
     if (!m[2]) {
@@ -103,6 +106,27 @@ export class Datalib {
         case "SMSG":
           this.handleSMSG(m);
           break;
+        case "SET":
+        let res = false;
+        if (m[4] === "1") { res = true; }
+        // Ignore data types for the client
+        // m[3] is necessary as it contains data
+        if (!m[3]) {
+          if (res) {
+            this.sendRes(id, "SET_RES", "E NO_DATA");
+          }
+          // Logging.warning("SET_RES " + id + " E NO_DATA");
+          return;
+        }
+        // Execute Set command and return/log response.
+        const p = m[3].split("=");
+        const key = p[0];
+        const value = p[1] || true;
+        set(this.data, key, value);
+        if (res) {
+          this.sendRes(id, "SET_RES", "0");
+        }
+        break;
       }
     }
     // Else: drop
