@@ -44,7 +44,7 @@ export class Datalib {
     this.socket.write(this.reqId + " " + type + " " + payload + "\r\n");
     this.reqArray[this.reqId] = cb;
   }
-  public set(key = "", value?: any, sType= "LIVE", cb?) {
+  public set(key = "", value?: any, sType = "LIVE", cb?) {
     let payload = sType + " " + key;
     if (value) {
       payload += "=" + value;
@@ -55,7 +55,7 @@ export class Datalib {
     }
     this.send("SET", payload);
   }
-  public subscribe(key= ".") {
+  public subscribe(key = ".") {
     const ee = new EventEmitter();
     this.send("SUB", key, (res) => {
       if (res.length < 2) {
@@ -107,26 +107,26 @@ export class Datalib {
           this.handleSMSG(m);
           break;
         case "SET":
-        let res = false;
-        if (m[4] === "1") { res = true; }
-        // Ignore data types for the client
-        // m[3] is necessary as it contains data
-        if (!m[3]) {
-          if (res) {
-            this.sendRes(id, "SET_RES", "E NO_DATA");
+          let res = false;
+          if (m[4] === "1") { res = true; }
+          // Ignore data types for the client
+          // m[3] is necessary as it contains data
+          if (!m[3]) {
+            if (res) {
+              this.sendRes(id, "SET_RES", "E NO_DATA");
+            }
+            // Logging.warning("SET_RES " + id + " E NO_DATA");
+            return;
           }
-          // Logging.warning("SET_RES " + id + " E NO_DATA");
-          return;
-        }
-        // Execute Set command and return/log response.
-        const p = m[3].split("=");
-        const key = p[0];
-        const value = p[1] || true;
-        set(this.data, key, value);
-        if (res) {
-          this.sendRes(id, "SET_RES", "0");
-        }
-        break;
+          // Execute Set command and return/log response.
+          const p = m[3].split("=");
+          const key = p[0];
+          const value = p[1] || true;
+          set(this.data, key, value);
+          if (res) {
+            this.sendRes(id, "SET_RES", "0");
+          }
+          break;
       }
     }
     // Else: drop
@@ -147,8 +147,9 @@ export class Datalib {
     const ee = this.subArray[subId];
     switch (m[3]) {
       case "SET":
-        ee.emit("data");
         const payload = m[5].split("=");
+        // Emit data event with key
+        ee.emit("data", payload[0]);
         if (payload.length > 1) {
           set(this.data, payload[0], payload[1]);
         } else {
