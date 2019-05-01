@@ -1,6 +1,9 @@
 // import dependencies
 import * as net from "net";
 import * as readline from "readline";
+import * as EventEmitter from "events";
+import set = require("set-value");
+
 
 const sendTypes = ["INIT", "INIT_REUSE", "PING", "SET", "DEL", "SUB", "UNSUB", "DUMP", "SMSG"];
 const responseTypes = ["INIT_ACK", "PONG", "SET_RES", "DEL_RES", "SUB_RES", "UNSUB_RES", "DUMP_RES"];
@@ -13,6 +16,7 @@ export class Datalib {
   private reqWait = 0;
   private reqArray = {};
   private subArray = {};
+  public data = {};
 
   constructor(host = "127.0.0.1", port = 6789) {
     this.socket = net.createConnection(port, host, () => {
@@ -67,6 +71,9 @@ export class Datalib {
         case "PING":
           this.sendRes(m[0]);
           break;
+        case "SMSG":
+          this.handleSMSG(m);
+          break;
       }
     }
     // Else: drop
@@ -74,6 +81,29 @@ export class Datalib {
   // Build pkg res
   private sendRes(id = 0, type = "PONG", payload = "") {
     this.socket.write(id + " " + type + " " + payload + "\r\n");
+  }
+  // Handle messages for subscriptions
+  private handleSMSG(m) {
+    if(m<6) {
+      return;
+    }
+    const subId=m[2];
+    if(!this.subArray[subId]) {
+      return;
+    }
+    const ee=this.subArray[subId];
+    switch(m[3]) {
+      case 'SET':
+        ee.emit('data');
+        const payload = m[5].split('=');
+        if(payload.length>1) {
+          set(this.data, payload[0], payload[1]);
+        } else {
+          set(this.data, payload[0], true);
+        }
+      break;
+    }
+
   }
   // Build pkg
   public send(type = "PING", payload = "", cb = (res: any) => undefined) {
@@ -91,6 +121,16 @@ export class Datalib {
       this.send("SET",payload,cb);
     }
     this.send("SET",payload);
+  }
+  public subscribe(key=".") {
+    const ee = new EventEmitter();
+    this.send("SUB",key,(res) => {
+      if(res.length<2) {
+        // TODO: Throw Error;
+      }
+      this.subArray[res[2]]=ee;
+    });
+    return ee;
   }
   public end() {
     this.socket.end();
