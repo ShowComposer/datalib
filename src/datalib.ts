@@ -2,8 +2,9 @@
 import * as net from "net";
 import * as readline from "readline";
 
-const sendTypes = ["INIT", "INIT_REUSE", "PING", "SET", "DEL", "SUB", "UNSUB", "DUMP"];
+const sendTypes = ["INIT", "INIT_REUSE", "PING", "SET", "DEL", "SUB", "UNSUB", "DUMP", "SMSG"];
 const responseTypes = ["INIT_ACK", "PONG", "SET_RES", "DEL_RES", "SUB_RES", "UNSUB_RES", "DUMP_RES"];
+const dataTypes = ["STATIC", "LIVE", "TICK", "LINK"];
 
 export class Datalib {
   private socket: net.Socket;
@@ -11,6 +12,7 @@ export class Datalib {
   private reqId = 0;
   private reqWait = 0;
   private reqArray = {};
+  private subArray = {};
 
   constructor(host = "127.0.0.1", port = 6789) {
     this.socket = net.createConnection(port, host, () => {
@@ -34,7 +36,7 @@ export class Datalib {
     });
   }
 
-  public handleLine(c) {
+  private handleLine(c) {
     const m = c.toString("utf8").split(" ");
     // Check if message has enough params
     if (m.length < 2) {
@@ -70,8 +72,25 @@ export class Datalib {
     // Else: drop
   }
   // Build pkg res
-  public sendRes(id = 0, type = "PONG", payload = "") {
+  private sendRes(id = 0, type = "PONG", payload = "") {
     this.socket.write(id + " " + type + " " + payload + "\r\n");
+  }
+  // Build pkg
+  public send(type = "PING", payload = "", cb = (res: any) => undefined) {
+    this.reqId++;
+    this.socket.write(this.reqId + " " + type + " " + payload + "\r\n");
+    this.reqArray[this.reqId] = cb;
+  }
+  public set(key = '', value?: any, s_type='LIVE', cb?) {
+    let payload = s_type+" "+key;
+    if(value) {
+      payload +="="+value;
+    }
+    if(cb) {
+      payload +=" 1";
+      this.send("SET",payload,cb);
+    }
+    this.send("SET",payload);
   }
   public end() {
     this.socket.end();
