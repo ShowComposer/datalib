@@ -148,13 +148,13 @@ export class Datalib {
     switch (m[3]) {
       case "SET":
         const payload = m[5].split("=");
-        // Emit data event with key
-        ee.emit("data", payload[0]);
         if (payload.length > 1) {
           set(this.data, payload[0], payload[1]);
         } else {
           set(this.data, payload[0], true);
         }
+	// Emit data event with key
+        ee.emit("data", payload[0]);
         break;
     }
 
