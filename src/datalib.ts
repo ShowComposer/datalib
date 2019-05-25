@@ -55,6 +55,7 @@ export class Datalib {
       this.send("SET", payload, cb);
     }
     this.send("SET", payload);
+    set(this.data, key, value || true);
   }
   public subscribe(key = ".") {
     const ee = new EventEmitter();
