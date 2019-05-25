@@ -53,8 +53,9 @@ export class Datalib {
     if (cb) {
       payload += " 1";
       this.send("SET", payload, cb);
+    } else {
+      this.send("SET", payload);
     }
-    this.send("SET", payload);
     set(this.data, key, value || true);
   }
   public subscribe(key = ".") {
