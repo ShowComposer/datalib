@@ -1,4 +1,5 @@
 // import dependencies
+import { Logging } from "@hibas123/nodelogging";
 import * as EventEmitter from "events";
 import * as net from "net";
 import * as readline from "readline";
@@ -19,7 +20,7 @@ export class Datalib {
 
   constructor(host = "127.0.0.1", port = 6789) {
     this.socket = net.createConnection(port, host, () => {
-      console.log("Client connected to " + host + ":" + port);
+      Logging.log("Client connected to " + host + ":" + port);
     });
 
     // Read line from Socket
@@ -35,7 +36,7 @@ export class Datalib {
     this.socket.setNoDelay();
     // Handle closing
     this.socket.on("close", () => {
-      console.log("disconnected");
+      Logging.log("disconnected");
     });
   }
   // Build pkg
@@ -153,7 +154,7 @@ export class Datalib {
         } else {
           set(this.data, payload[0], true);
         }
-	// Emit data event with key
+        // Emit data event with key
         ee.emit("data", payload[0]);
         break;
     }
