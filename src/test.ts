@@ -9,3 +9,6 @@ const data = new Datalib();
 // data.subscribe("test").on("data", () => {
 // });
 // data.end();
+data.dump("io",(r) => {
+  console.log(r);
+});

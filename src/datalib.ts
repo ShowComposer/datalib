@@ -85,8 +85,14 @@ export class Datalib {
     });
     return ee;
   }
-  public dump(key) {
-    this.send("DUMP", key);
+  public dump(key, cb) {
+    this.send("DUMP", key, (res) => {
+      if (res[2]) {
+        cb(this.base64toPOJO(res[2]));
+      } else {
+        Logging.error("DUMP: Invalid response");
+      }
+    });
   }
   public end() {
     this.socket.end();
@@ -187,7 +193,7 @@ export class Datalib {
         const deepAssObject = {};
         set(deepAssObject, key, value);
         this.data = merge(this.data, deepAssObject);
-        ee.emit("data", key, value );
+        ee.emit("data", key, value);
         break;
     }
 
