@@ -88,7 +88,9 @@ export class Datalib {
   public dump(key, cb) {
     this.send("DUMP", key, (res) => {
       if (res[2]) {
-        cb(this.base64toPOJO(res[2]));
+        const o = this.base64toPOJO(res[2]);
+        set(this.data,key,o);
+        cb(o);
       } else {
         Logging.error("DUMP: Invalid response");
       }
