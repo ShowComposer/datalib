@@ -4,10 +4,8 @@ import { Logging } from "@hibas123/nodelogging";
 
 const data = new Datalib();
 
-data.set("test", 123);
-data.dump("system");
-data.subscribe("system").on("data", () => {
-  Logging.log(data.data);
-});
-
+// data.dump("system");
+// data.assign("test", {hello: {a: {b: 123}}}, "STATIC");
+// data.subscribe("test").on("data", () => {
+// });
 // data.end();

@@ -1,12 +1,13 @@
 // import dependencies
 import { Logging } from "@hibas123/nodelogging";
 import * as EventEmitter from "events";
+import merge = require("merge-deep");
 import * as net from "net";
 import * as readline from "readline";
 import set = require("set-value");
 
-const sendTypes = ["INIT", "INIT_REUSE", "PING", "SET", "DEL", "SUB", "UNSUB", "DUMP", "SMSG"];
-const responseTypes = ["INIT_ACK", "PONG", "SET_RES", "DEL_RES", "SUB_RES", "UNSUB_RES", "DUMP_RES"];
+const sendTypes = ["INIT", "INIT_REUSE", "PING", "SET", "ASSIGN", "DEL", "SUB", "UNSUB", "DUMP", "SMSG"];
+const responseTypes = ["INIT_ACK", "PONG", "SET_RES", "ASSIGN_RES", "DEL_RES", "SUB_RES", "UNSUB_RES", "DUMP_RES"];
 const dataTypes = ["STATIC", "LIVE", "TICK", "LINK"];
 
 export class Datalib {
@@ -57,6 +58,22 @@ export class Datalib {
       this.send("SET", payload);
     }
     set(this.data, key, value || true);
+  }
+  public assign(key = "", value = {}, sType = "LIVE", cb?) {
+    let payload = sType + " " + key;
+    if (value) {
+      payload += " " + this.POJOtoBase64(value);
+    }
+    if (cb) {
+      payload += "1";
+      this.send("ASSIGN", payload, cb);
+    } else {
+      this.send("ASSIGN", payload);
+    }
+    // Set changes local
+    const deepAssObject = {};
+    set(deepAssObject, key, value);
+    this.data = merge(this.data, deepAssObject);
   }
   public subscribe(key = ".") {
     const ee = new EventEmitter();
@@ -159,7 +176,30 @@ export class Datalib {
         // Emit data event with key and data value
         ee.emit("data", payload[0], d);
         break;
+      case "ASSIGN":
+        if (m < 7) {
+          Logging.debug("Invalid SMSG ASSIGN");
+          return;
+        }
+        const key = m[5];
+        const value = this.base64toPOJO(m[6]);
+        // Set changes local
+        const deepAssObject = {};
+        set(deepAssObject, key, value);
+        this.data = merge(this.data, deepAssObject);
+        ee.emit("data", key, value );
+        break;
     }
 
+  }
+  private base64toPOJO(encoded) {
+    const buff = Buffer.from(encoded, "base64");
+    const text = buff.toString("ascii");
+    return JSON.parse(text);
+  }
+  private POJOtoBase64(obj) {
+    const buff = Buffer.from(JSON.stringify(obj), "ascii");
+    const b64 = buff.toString("base64");
+    return b64;
   }
 }
