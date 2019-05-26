@@ -207,7 +207,7 @@ export class Datalib {
   }
   private POJOtoBase64(obj) {
     const str = JSON.stringify(obj);
-    if(typeof str !== "string") {
+    if (typeof str !== "string") {
       Logging.error("Invalid object on POJOtoBase64");
       return;
     }
