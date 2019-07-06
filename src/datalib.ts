@@ -48,6 +48,9 @@ export class Datalib {
   }
   public set(key = "", value?: any, sType = "LIVE", cb?) {
     let payload = sType + " " + key;
+    if (sType === "TICK") {
+      value = new Date().getTime();
+    }
     if (value) {
       payload += "=" + value;
     }
