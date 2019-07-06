@@ -1,6 +1,7 @@
 // import dependencies
 import { Logging } from "@hibas123/nodelogging";
 import * as EventEmitter from "events";
+import get = require("get-value");
 import merge = require("merge-deep");
 import * as net from "net";
 import * as readline from "readline";
@@ -61,6 +62,9 @@ export class Datalib {
       this.send("SET", payload);
     }
     set(this.data, key, value || true);
+  }
+  public getLocal(key) {
+    return get(this.data, key);
   }
   public assign(key = "", value = {}, sType = "LIVE", cb?) {
     let payload = sType + " " + key;
