@@ -11,3 +11,10 @@ script:
 after_success:
 
 deploy:
+  provider: npm
+  email: dev@marvingaube.de
+  api_key:
+    secure: TveYY46emRLG4iiMxEARxjj6/nQA1IppiBYwQeAGcU/0FhtwT8Bk2/EP6oXvaQTZaNHrqXHt9lpBEn4XLoZIr3mWXWHTdVj7573Xt3NyWqetuMTU/JOwk6apVcXO86d5vssrI1ht4S4/2eKOacS7SYEeyclslWvihcx2dy95YudwKaznVbefAgYM5fg70gs18F+UDcBucweXJMwcowa40KVmPB2TGFGs04+E+W0VyybZPKHREKhYheUXIgXlFG1mFggPiGh74A9e6L4qdLhc1xRD1zLhiE0MJ3UvDBJizx8OTmcTh7cbzOLdR5RFKgW6oYUvXtdRBfanbq9OuDG2rjXJBhvSqItZOt8LKp3wtIHkDAN+79ZiHBNPzKWwezxNlF85h1Fh7eS7qu975GBCm+01Q45u7D9QFjUz4+/gpDKGRV/bHi+qoShiK5BUviRb80R1VMz/umrUIS6RMnWD1bBbIltbkGnYCHzO2zYeaNe9JDNAES9YAIVHTOdNBuPBlWU2/m7blHx6jmTVET6C7yPg/uqBF5oGLf7of8MThsXwePvA0aG1jTCpxIqyckZqGsRRhwyydoU3mClkJQTra8pkIDLJwmH3AL4ArvDhvTASEvGbmM4Wh1LiUpDLftOlPUDUmuDTxcAyHfmj/aU4IqpSX0OKKsphWjLvSP6c0Qo=
+  on:
+    tags: true
+    repo: ShowComposer/datalib
