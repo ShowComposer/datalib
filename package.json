@@ -38,6 +38,6 @@
     "@hibas123/nodelogging": "^2.0.6",
     "get-value": "^3.0.1",
     "merge-deep": "^3.0.2",
-    "set-value": "^3.0.0"
+    "set-value": "^3.0.1"
   }
 }
