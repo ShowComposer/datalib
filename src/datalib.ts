@@ -52,7 +52,7 @@ export class Datalib {
     if (sType === "TICK") {
       value = new Date().getTime();
     }
-    if (value) {
+    if (typeof value !== 'undefined') {
       payload += "=" + value;
     }
     if (cb) {
@@ -68,7 +68,7 @@ export class Datalib {
   }
   public assign(key = "", value = {}, sType = "LIVE", cb?) {
     let payload = sType + " " + key;
-    if (value) {
+    if (typeof value !== 'undefined') {
       payload += " " + this.POJOtoBase64(value);
     }
     if (cb) {
