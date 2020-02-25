@@ -52,8 +52,8 @@ export class Datalib {
     if (sType === "TICK") {
       value = new Date().getTime();
     }
-    if (typeof value !== 'undefined') {
-      payload += "=" + value;
+    if (typeof value !== "undefined") {
+      payload += "=" + this.stringToBase64(value);
     }
     if (cb) {
       payload += " 1";
@@ -68,7 +68,7 @@ export class Datalib {
   }
   public assign(key = "", value = {}, sType = "LIVE", cb?) {
     let payload = sType + " " + key;
-    if (typeof value !== 'undefined') {
+    if (typeof value !== "undefined") {
       payload += " " + this.POJOtoBase64(value);
     }
     if (cb) {
@@ -156,7 +156,7 @@ export class Datalib {
           // Execute Set command and return/log response.
           const p = m[3].split("=");
           const key = p[0];
-          const value = p[1] || true;
+          const value = this.base64toString(p[1]) || true;
           set(this.data, key, value);
           if (res) {
             this.sendRes(id, "SET_RES", "0");
@@ -183,10 +183,12 @@ export class Datalib {
     switch (m[3]) {
       case "SET":
         const payload = m[5].split("=");
-        let d = true;
+        let d;
         if (payload.length > 1) {
-          d = payload[1];
-        }
+          d = this.base64toString(payload[1]);
+        } else {
+					d = true;
+				}
         set(this.data, payload[0], d);
         // Emit data event with key and data value
         ee.emit("data", payload[0], d);
@@ -209,7 +211,7 @@ export class Datalib {
   }
   private base64toPOJO(encoded) {
     const buff = Buffer.from(encoded, "base64");
-    const text = buff.toString("ascii");
+    const text = buff.toString("utf8");
     return JSON.parse(text);
   }
   private POJOtoBase64(obj) {
@@ -218,8 +220,23 @@ export class Datalib {
       Logging.error("Invalid object on POJOtoBase64");
       return;
     }
-    const buff = Buffer.from(str, "ascii");
+    const buff = Buffer.from(str, "utf8");
     const b64 = buff.toString("base64");
     return b64;
   }
+	private base64toString(encoded) {
+		const buff = Buffer.from(encoded, "base64");
+		return buff.toString("utf8");
+	}
+	private stringToBase64(str) {
+		if (typeof str !== "string") {
+			if(!(str = str.toString())) {
+				Logging.error("Invalid value on stringToBase64");
+				return;
+			}
+		}
+		const buff = Buffer.from(str, "utf8");
+		const b64 = buff.toString("base64");
+		return b64;
+	}
 }
