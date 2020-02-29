@@ -53,7 +53,7 @@ export class Datalib {
       value = new Date().getTime();
     }
     if (typeof value !== "undefined") {
-      payload += "=" + this.stringToBase64(value);
+      payload += ":" + this.stringToBase64(value);
     }
     if (cb) {
       payload += " 1";
@@ -154,7 +154,7 @@ export class Datalib {
             return;
           }
           // Execute Set command and return/log response.
-          const p = m[3].split("=");
+          const p = m[3].split(":");
           const key = p[0];
           const value = this.base64toString(p[1]) || true;
           set(this.data, key, value);
@@ -182,7 +182,7 @@ export class Datalib {
     const ee = this.subArray[subId];
     switch (m[3]) {
       case "SET":
-        const payload = m[5].split("=");
+        const payload = m[5].split(":");
         let d;
         if (payload.length > 1) {
           d = this.base64toString(payload[1]);
